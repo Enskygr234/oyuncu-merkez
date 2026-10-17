@@ -1,0 +1,16 @@
+{
+  "appId": "com.oyuncumerkezi.app",
+  "appName": "Oyuncu Merkezi",
+  "webDir": "dist",
+  "backgroundColor": "#12142B",
+  "plugins": {
+    "BackgroundRunner": {
+      "label": "com.oyuncumerkezi.app.fiyat",
+      "src": "runners/background.js",
+      "event": "checkPrices",
+      "repeat": true,
+      "interval": 30,
+      "autoStart": true
+    }
+  }
+}

@@ -1,0 +1,94 @@
+name: Derle ve yayınla
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash   # pipefail açık: "| tee" hataları gizlemesin
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      LOG: ${{ github.workspace }}/ci.log
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Paketleri kur
+        run: npm install --no-audit --no-fund 2>&1 | tee -a "$LOG"
+
+      - name: Siteyi derle
+        run: npm run build 2>&1 | tee -a "$LOG"
+
+      # Site: https://enskygr234.github.io/oyuncu-merkez/
+      - name: Siteyi yayınla
+        run: |
+          cp -r dist site && cd site
+          touch .nojekyll
+          git init -q -b gh-pages
+          git config user.name "oyuncu-merkezi-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Site güncellendi: ${{ github.sha }}"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:gh-pages
+
+      - name: Android projesini hazırla
+        run: |
+          {
+            npx cap add android
+            node native/patch-android.mjs ${{ github.run_number }}
+            npx cap sync android
+          } 2>&1 | tee -a "$LOG"
+
+      - name: APK derle
+        run: |
+          mkdir -p ~/.android
+          cp native/debug.keystore ~/.android/debug.keystore   # sabit imza: güncellemeler üstüne kurulur
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee -a "$LOG"
+          cp app/build/outputs/apk/debug/app-debug.apk ../oyuncu-merkezi.apk
+
+      # Sabit link: .../releases/download/son-surum/oyuncu-merkezi.apk
+      - name: APK linkini güncelle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete son-surum --yes --cleanup-tag || true
+          gh release create son-surum oyuncu-merkezi.apk \
+            --title "Oyuncu Merkezi - son sürüm" \
+            --notes "Derleme #${{ github.run_number }}: $(git log -1 --pretty=%s)" \
+            --target "${{ github.sha }}"
+
+      # Hata olursa kaydın sonunu ci-logs dalına yaz (okuması kolay olsun)
+      - name: Hata kaydını yayımla
+        if: failure()
+        run: |
+          mkdir -p logs && cd logs
+          tail -c 200000 "$LOG" > ci.log 2>/dev/null || echo "kayıt yok" > ci.log
+          git init -q -b ci-logs
+          git config user.name "oyuncu-merkezi-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ci.log
+          git commit -q -m "Başarısız derleme #${{ github.run_number }} (${{ github.sha }})"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:ci-logs

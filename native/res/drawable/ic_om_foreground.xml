@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Oyun kolu ve eğik sarı fiyat etiketi -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFEEF0FF"
+        android:pathData="M30,48 Q30,40 38,40 L70,40 Q78,40 78,48 L82,68 Q84,78 75,78 Q70,78 66,72 L62,66 L46,66 L42,72 Q38,78 33,78 Q24,78 26,68 Z" />
+    <path android:fillColor="#FF12142B" android:pathData="M38,50 h4 v12 h-4 Z" />
+    <path android:fillColor="#FF12142B" android:pathData="M34,54 h12 v4 h-12 Z" />
+    <path android:fillColor="#FF12142B" android:pathData="M66,52 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <path android:fillColor="#FF12142B" android:pathData="M72,58 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <group android:rotation="-12" android:pivotX="72" android:pivotY="34">
+        <path android:fillColor="#FFFFD23F" android:pathData="M60,26 h24 a3,3 0 0 1 3,3 v10 a3,3 0 0 1 -3,3 h-24 a3,3 0 0 1 -3,-3 v-10 a3,3 0 0 1 3,-3 Z" />
+        <path android:fillColor="#FF12142B" android:pathData="M66,31 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0" />
+        <path android:fillColor="#FF12142B" android:pathData="M78,37 m-2.2,0 a2.2,2.2 0 1,0 4.4,0 a2.2,2.2 0 1,0 -4.4,0" />
+        <path android:fillColor="#FF12142B" android:pathData="M77,28.5 L79,29.8 L67,39.5 L65,38.2 Z" />
+    </group>
+</vector>
